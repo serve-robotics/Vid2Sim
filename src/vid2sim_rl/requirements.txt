@@ -1,4 +1,4 @@
-transformers==4.43.3
+transformers>=5.0.0
 wandb==0.17.5
 gdown==5.2.0
 gymnasium==0.29.1

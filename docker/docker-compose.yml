@@ -1,0 +1,20 @@
+services:
+  vid2sim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vid2sim:latest
+    container_name: vid2sim_dev
+    network_mode: "host"
+    volumes:
+      - ../:/workspace
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
