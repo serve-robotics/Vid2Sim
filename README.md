@@ -18,9 +18,10 @@ Vid2Sim is a novel framework that converts monocular videos into photorealistic 
 git clone https://github.com/Vid2Sim/Vid2Sim.git --recursive
 cd Vid2Sim
 
-# Create a new environment
-conda create -n vid2sim python=3.10
-conda activate vid2sim
+# Build Docker image and get into container
+cd docker
+./build.sh
+./run.sh
 
 # Install dependencies
 pip install -e .
@@ -32,6 +33,7 @@ pip install -e submodules/simple-knn
 
 # Install RL dependencies
 pip install -r src/vid2sim_rl/requirements.txt
+pip install -e submodules/ml-agents/ml-agents-envs
 pip install -e submodules/ml-agents/ml-agents
 [Optional] pip install -e submodules/r3m
 ```
