@@ -1,8 +1,8 @@
 services:
   vid2sim:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     image: vid2sim:latest
     container_name: vid2sim_dev
     network_mode: "host"
