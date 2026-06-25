@@ -11,31 +11,35 @@ Vid2Sim is a novel framework that converts monocular videos into photorealistic 
 </p>
 
 
-## 🚧 Installation 
+## 🚧 Dockerized Quickstart
 
 ```bash
 # Clone the repository
-git clone https://github.com/Vid2Sim/Vid2Sim.git --recursive
+git clone https://github.com/serve-robotics/Vid2Sim.git --recursive
 cd Vid2Sim
 
-# Build Docker image and get into container
+# 1) Build the Docker image
 cd docker
 ./build.sh
+
+# 2) Start an interactive container shell
 ./run.sh
 
-# Install dependencies
-pip install -e .
+# 3) Inside the container: extract frames from videos
+# Input:  /workspace/data/videos (contains .mp4/.mov/... files, recursively)
+# Output: /workspace/output/images/<relative_path>/<video_name>/%04d.jpg
+bash scripts/extract_frames_recursive.sh /workspace/data/videos /workspace/output/images
 
-# Install reconstruction dependencies
-pip install -e submodules/vid2sim-rasterizer
-pip install -e submodules/vid2sim-deva-segmentation
-pip install -e submodules/simple-knn
+# 4) Inside the container: generate masks from extracted frames
+# This supports nested image folders under /workspace/output/images.
+./src/vid2sim_recon/generate_mask.sh /workspace/output
+```
 
-# Install RL dependencies
-pip install -r src/vid2sim_rl/requirements.txt
-pip install -e submodules/ml-agents/ml-agents-envs
-pip install -e submodules/ml-agents/ml-agents
-[Optional] pip install -e submodules/r3m
+To use lower-memory mask settings:
+
+```bash
+VID2SIM_MASK_CHUNK_SIZE=1 VID2SIM_MASK_SIZE=720 VID2SIM_DISABLE_LONG_TERM=1 \
+  ./src/vid2sim_recon/generate_mask.sh /workspace/output
 ```
 
 ## 🎥 Reconstruct the simulation envs from videos

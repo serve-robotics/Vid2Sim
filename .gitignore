@@ -27,3 +27,4 @@ __pycache__/
 *.egg-info/
 *.egg
 checkpoints/
+videos

@@ -6,6 +6,7 @@ ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0;12.0"
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
+    ffmpeg \
     git \
     libgl1 \
     libglib2.0-0 \

@@ -1,10 +1,10 @@
 [submodule "submodules/Grounded-SAM-2"]
 	path = submodules/Grounded-SAM-2
-	url = https://github.com/IDEA-Research/Grounded-SAM-2.git
+	url = https://github.com/serve-robotics/Grounded-SAM-2.git
 
 [submodule "submodules/vid2sim-rasterizer"]
 	path = submodules/vid2sim-rasterizer
-	url = https://github.com/ZiYang-xie/video2sim-rasterization
+	url = https://github.com/serve-robotics/video2sim-rasterization
 
 [submodule "submodules/vid2sim-deva-segmentation"]
 	path = submodules/vid2sim-deva-segmentation
@@ -12,7 +12,7 @@
 
 [submodule "submodules/simple-knn"]
 	path = submodules/simple-knn
-	url = https://gitlab.inria.fr/bkerbl/simple-knn.git
+	url = https://git@github.com:serve-robotics/simple-knn.git
 
 [submodule "submodules/ml-agents"]
 	path = submodules/ml-agents
