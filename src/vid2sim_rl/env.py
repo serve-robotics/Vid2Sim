@@ -146,7 +146,7 @@ class UnityEnvWrapper(gym.Env):
 def build_env(env_path, cfg, worker_id=0, random_seed=0, inference_mode=False, no_graphics=False):
     conf_channel = EngineConfigurationChannel()
     param_channel = EnvironmentParametersChannel()
-    abs_env_path = to_absolute_path(env_path)
+    abs_env_path = to_absolute_path(env_path) if env_path is not None else None
     unity_additional_args = getattr(cfg.env, 'unity_args', [])
     unity_env = UnityEnvironment(
         file_name=abs_env_path,
@@ -154,6 +154,7 @@ def build_env(env_path, cfg, worker_id=0, random_seed=0, inference_mode=False, n
         side_channels=[conf_channel, param_channel],
         no_graphics=no_graphics,
         worker_id=worker_id,
+        timeout_wait=300,
         additional_args=unity_additional_args if len(unity_additional_args) > 0 else None,
     )
     conf_channel.set_configuration_parameters(

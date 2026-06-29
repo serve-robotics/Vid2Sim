@@ -1,4 +1,4 @@
-FROM nvidia/cuda:13.0.0-devel-ubuntu22.04
+FROM nvidia/cuda:12.8.1-devel-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0;12.0"
@@ -18,9 +18,18 @@ RUN apt-get update && apt-get install -y \
     python3.10-dev \
     python3-pip \
     python-is-python3 \
+    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip setuptools wheel
+
+# Install torch before COPY so this layer is cached independently of source
+# changes. Any edit to local files invalidates COPY and everything after it,
+# so keeping the large (~3 GB) torch download above COPY means it only
+# re-runs when the torch version changes, not on every file edit.
+# cu128 wheel is required: the default PyPI torch ships cu13, which mismatches
+# this 12.8 base image and breaks CUDA extension compilation.
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
 
 WORKDIR /workspace
 
@@ -40,18 +49,22 @@ RUN cp submodules/Grounded-SAM-2/grounding_dino/groundingdino/config/GroundingDI
      && curl -L --fail https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth \
          -o submodules/ckpts/deva/groundingdino_swint_ogc.pth
 
-# Install reconstruction dependencies.
-# Build CUDA extensions without PEP517 isolation so torch env vars are honored.
-RUN TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0 12.0" pip install --no-build-isolation -e submodules/vid2sim-rasterizer
-RUN pip install -e submodules/vid2sim-deva-segmentation
+# Install non-CUDA reconstruction dependencies.
+# ninja, hatchling, and the three CUDA extensions (vid2sim-rasterizer,
+# groundingdino, simple-knn) are intentionally NOT built here: docker build
+# has no GPU access so torch's import intermittently segfaults (SIGSEGV/-11)
+# even before nvcc runs. Run docker/setup_extensions.sh inside the container
+# (via ./docker/run.sh) to compile them once against the live GPU — the
+# compiled .so files persist in the mounted /workspace.
+RUN pip install ninja hatchling editables
+RUN pip install --no-build-isolation -e submodules/vid2sim-deva-segmentation
 RUN pip install -r submodules/Grounded-SAM-2/grounding_dino/requirements.txt
 RUN pip install segment-anything
 RUN pip install segment-anything-hq
-RUN TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0 12.0" pip install --no-build-isolation -e submodules/Grounded-SAM-2/grounding_dino
-RUN TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0 12.0" pip install --no-build-isolation -e submodules/simple-knn
 
 # Install RL dependencies
 RUN pip install -r src/vid2sim_rl/requirements.txt
+RUN pip install imageio imageio-ffmpeg pillow
 RUN pip install -e submodules/ml-agents/ml-agents-envs
 RUN pip install -e submodules/ml-agents/ml-agents
 

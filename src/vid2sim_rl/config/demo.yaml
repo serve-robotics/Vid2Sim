@@ -1,0 +1,59 @@
+version: "demo"
+
+env:
+  env_paths: ["envs/static/05/env.x86_64"]
+  test_env_paths: ["envs/static/05/env.x86_64"]
+  # NOTE: reference-only. demo.py calls build_env with file_name=None, so Python
+  # does NOT launch Unity and these args are not applied automatically. Launch
+  # Unity manually on the host with these flags (see DEMO_README.md). The
+  # --mlagents-port=5004 flag is required to connect to Python's listener.
+  unity_args:
+    - "--mlagents-port=5004"
+    - "-force-glcore"
+    - "-screen-width=1280"
+    - "-screen-height=720"
+  env_class: 'single'
+  seed: 0
+  time_scale: 1.0
+  screen_width: 640
+  screen_height: 360
+
+  obs_width: 128
+  obs_height: 72
+
+  max_episode_length: 120
+  time_penalty_multiplier: -0.1
+  distance_reward_multiplier: 1
+  steer_smooth_reward_multiplier: 0.05
+  collision_penalty: -1
+  goal_reward: 10
+  fail_reward: -10
+  random_obj_placement: True
+  max_loaded_obj_num: 1
+  collision_limit: 999
+  enable_dynamic_agent: False
+  dynamic_agent_n: 1
+
+  use_rgb: True
+  use_depth: False
+
+train:
+  type: "sac"
+  HER: False
+
+inference:
+  num_episodes: 3
+  render: True
+  max_steps: 300
+  decision_freq: 1
+  fps: 10
+  output_dir: "demo_output"
+  video_path: "videos/"
+  plot_path: "plots/"
+  # Enlarge the agent-POV video for viewability (LANCZOS). The source is the
+  # Unity camera sensor at obs 128x72 — upscaling does NOT add detail. For the
+  # full-quality Unity render, screen-capture the window with record_unity.sh.
+  upscale: 6
+
+eval:
+  work_id: 1
