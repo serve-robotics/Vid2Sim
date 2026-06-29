@@ -28,3 +28,8 @@ __pycache__/
 *.egg
 checkpoints/
 videos
+
+# Vid2Sim demo — large Unity env assets from Google Drive + generated output
+src/vid2sim_rl/envs/static/
+src/vid2sim_rl/envs/dynamic/
+src/vid2sim_rl/demo_output/

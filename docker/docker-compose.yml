@@ -8,6 +8,9 @@ services:
     network_mode: "host"
     volumes:
       - ../:/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=${DISPLAY}
     working_dir: /workspace
     stdin_open: true
     tty: true
