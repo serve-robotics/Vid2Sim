@@ -246,8 +246,11 @@ listening *before* Unity launches.
      __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia \
      src/vid2sim_rl/envs/static/05/env.x86_64 \
      --mlagents-port 5004 \
-     -screen-width 1280 -screen-height 720 &
+     -screen-width 1920 -screen-height 1080 &
    ```
+   (`-screen-width/-height` set the Unity window size — bump them higher for a
+   sharper `record_unity.sh` capture. They do NOT affect the agent-POV video, which
+   is fixed at the 128×72 camera sensor.)
 
 5. **[DOCKER]** Watch the Python terminal: it advances past `Listening...` and
    prints `=== Episode 1/3 ===`. Output MP4s land in
