@@ -254,6 +254,31 @@ listening *before* Unity launches.
    `demo_output/videos/episode_0{1,2,3}_rgb.mp4`, plus debug frame PNGs in
    `demo_output/` (inside the container, which is the mounted repo on host).
 
+## Video quality — agent POV vs the Unity window
+
+There are two different views, with very different quality:
+
+- **Agent POV (what `demo.py` records).** These frames are the robot's
+  *policy-input* camera observation. The Unity build renders that sensor at a fixed
+  **128×72** (`obs_width`/`obs_height`), baked into the binary — it is the hard
+  resolution ceiling, and no codec/bitrate setting recovers detail that was never
+  rendered. `demo.py` writes these with high-quality x264 (`crf 16`, `quality=10`)
+  and an `inference.upscale` factor (default 6 → 768×432) that enlarges via LANCZOS
+  for viewability — but upscaling does **not** add real detail.
+
+- **Unity window (the good-looking 1280×720 render).** To capture the quality you
+  actually see on screen, screen-record the Unity window instead of the observation.
+  Use the helper (run on the **host**, while Unity is open):
+  ```bash
+  # one-time host setup
+  sudo apt-get install -y ffmpeg xdotool
+  # in a host terminal, after Unity is running (step 4):
+  ./src/vid2sim_rl/record_unity.sh unity_capture.mp4   # Ctrl-C to stop
+  ```
+  It finds the `Video2Sim` window, grabs its exact geometry, and encodes a visually
+  lossless (`crf 18`) MP4 of the live render. Launch Unity at a higher resolution
+  (`-screen-width 1920 -screen-height 1080`) for an even sharper capture.
+
 ## Retrying after a failure or crash
 
 Any failed/timed-out attempt leaves a stale Unity (and sometimes Python) process

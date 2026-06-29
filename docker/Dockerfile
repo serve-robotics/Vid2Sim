@@ -64,7 +64,7 @@ RUN pip install segment-anything-hq
 
 # Install RL dependencies
 RUN pip install -r src/vid2sim_rl/requirements.txt
-RUN pip install imageio imageio-ffmpeg
+RUN pip install imageio imageio-ffmpeg pillow
 RUN pip install -e submodules/ml-agents/ml-agents-envs
 RUN pip install -e submodules/ml-agents/ml-agents
 

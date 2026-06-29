@@ -50,6 +50,10 @@ inference:
   output_dir: "demo_output"
   video_path: "videos/"
   plot_path: "plots/"
+  # Enlarge the agent-POV video for viewability (LANCZOS). The source is the
+  # Unity camera sensor at obs 128x72 — upscaling does NOT add detail. For the
+  # full-quality Unity render, screen-capture the window with record_unity.sh.
+  upscale: 6
 
 eval:
   work_id: 1

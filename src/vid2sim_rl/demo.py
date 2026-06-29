@@ -1,6 +1,7 @@
 import os
 import imageio
 import numpy as np
+from PIL import Image
 import hydra
 from omegaconf import DictConfig
 from env import build_env
@@ -23,7 +24,18 @@ def main(cfg: DictConfig):
     for ep in range(cfg.inference.num_episodes):
         print(f"\n=== Episode {ep+1}/{cfg.inference.num_episodes} ===")
         video_path = os.path.join(video_dir, f"episode_{ep:02d}_rgb.mp4")
-        writer = imageio.get_writer(video_path, fps=cfg.inference.fps, macro_block_size=1)
+        # NOTE: frames are the agent's camera observation, fixed at obs_width x
+        # obs_height (128x72) by the Unity build's camera sensor — that is the hard
+        # resolution ceiling here. `upscale` only enlarges for viewability (LANCZOS),
+        # it cannot add detail. For the full-quality Unity render, screen-capture the
+        # Unity window instead with record_unity.sh. quality=10 + high bitrate avoid
+        # piling codec artifacts on top of the already-small source.
+        upscale = int(getattr(cfg.inference, 'upscale', 1))
+        writer = imageio.get_writer(
+            video_path, fps=cfg.inference.fps, macro_block_size=1,
+            codec='libx264', quality=10, bitrate=None,
+            output_params=['-crf', '16', '-pix_fmt', 'yuv420p'],
+        )
 
         obs, _ = env.reset()
         done = False
@@ -38,9 +50,14 @@ def main(cfg: DictConfig):
                 image = info['raw_img'][-1].transpose(1, 2, 0)
                 image = (image * 255).astype(np.uint8)
                 if step in (0, 10, 50, 100, 150) and ep == 0:
-                    print(f"  [debug] step={step} min={image.min()} max={image.max()} mean={image.mean():.2f}")
+                    print(f"  [debug] step={step} shape={image.shape} min={image.min()} max={image.max()} mean={image.mean():.2f}")
                     import imageio as iio
                     iio.imwrite(os.path.join(cfg.inference.output_dir, f'debug_frame_step{step:03d}.png'), image)
+                if upscale > 1:
+                    h, w = image.shape[:2]
+                    image = np.asarray(
+                        Image.fromarray(image).resize((w * upscale, h * upscale), Image.LANCZOS)
+                    )
                 writer.append_data(image)
 
             if done:
